@@ -6,8 +6,9 @@ using namespace std;
 
 const string extensions[] = {".bmp",".png"};
 
-string checkArguments(int argc, int expected) {
-    if(argc != expected) return "Expected " + to_string(expected) + " argument(s)";
+bool checkArguments(int argc, int expected) {
+    if(argc != expected) cout<<"Expected " + to_string(expected) + " argument(s)";
+    return argc == expected;
 }
 
 bool checkExtension(const string& path) {
@@ -38,27 +39,38 @@ int main(int argc, const char* argv[]) {
         if (flag[0] == '-') {
             if (flag == "-h" || flag == "--help") {
                 message = helpMessage;
-                string path = argv[2];
 
             } else if (flag == "-i" || flag == "--info") {
-                message = checkArguments(argc, 1) + useHelp;
+                if(checkArguments(argc, 3)) {
+                    message = "info"; //TODO
+
+                } else message = useHelp;
 
             } else if (flag == "-e" || flag == "--encrypt") {
-                message = checkArguments(argc, 2) + useHelp;
+                if(checkArguments(argc, 4)) {
+                    message = "enrypt"; //TODO
+
+                } else message = useHelp;
 
             } else if (flag == "-d" || flag == "--decrypt") {
-                message = checkArguments(argc, 1) + useHelp;
+                if(checkArguments(argc, 3)) {
+                    message = "decrypt"; //TODO
+
+                } else message = useHelp;
 
             } else if (flag == "-c" || flag == "--check") {
-                message = checkArguments(argc, 2) + useHelp;
+                if(checkArguments(argc, 4)) {
+                    message = "check"; //TODO
+
+                } else message = useHelp;
 
             } else {
                 message = noSuchFlag + flag + useHelp;
             }
 
         }
-        cout << message;
-
-        return 0;
     }
+    cout << message;
+
+    return 0;
 }

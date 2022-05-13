@@ -23,12 +23,13 @@ bool checkArguments(const int& argc, const int& expected) {
  * Returns true if the file's format is supported.
  * Othewise, returns false and prints an error message.
  * @param path - file path.
+ * @param extension - string storing the file's extension.
  * @return true if the file's format is supported.
  */
 
-bool checkExtension(const string& path) {
+bool checkExtension(const string& path, string& extension) {
     filesystem::path p = filesystem::path(path);
-    string extension = p.extension().string();
+    extension = p.extension().string();
     string message = "Error: File format is not supported. Supported formats: ";
 
     for(const string& e : extensions) {
@@ -105,25 +106,105 @@ int bmpColorDepth(ifstream& in) {
     return readBytes(in, 2);
 }
 
+unsigned long long bmpPixelArraySize(ifstream& in) {
+    in.seekg(18);
+    return (readBytes(in,4) * readBytes(in,4));
+}
+
+long bmpFileSize(ifstream& in) {
+    in.seekg(2);
+    return readBytes(in, 4);
+}
+
 /**
  * Check whether the given message can be either encrypted in or decrypted from the file.
  * @param message - the message to encrypt or decrypt.
+ * @param extension - the extension of the file.
  * @param in - the file stream that is used to read the file.
  * @return true if it's possible to encrypt or decrypt the message from the given file.
  */
 
-bool checkMessage(const string& message, ifstream& in) {
-    int bpp = bmpColorDepth(in);
-    if(bpp != 24 && bpp != 32) return false;  //unsupported type of bitmap
+bool checkMessage(const string& message, const string& extension, ifstream& in) {
+    if(extension == extensions[0]) {
+        int bpp = bmpColorDepth(in);
+        if (bpp != 24 && bpp != 32) return false;  //unsupported type of bitmap
+        unsigned long long bitCapacity = bmpPixelArraySize(in) * 3;
+        unsigned long long messageBitSize = message.size() * 8;
 
-    in.seekg(18);
-    int width = readBytes(in, 4);
-    int height = readBytes(in, 4);
-    unsigned long long bitCapacity = width * height * 3;
-    unsigned long long messageBitSize = message.size() * 8 + 8;
+        if (bitCapacity < messageBitSize) return false;
+        return true;
+    }
+    return false;
+}
 
-    if(bitCapacity < messageBitSize) return false;
-    return true;
+void encryptMessage (const string& message, const string& extension,const string& path, ifstream& in) {
+    if(extension == extensions[0]) {
+        int bpp = bmpColorDepth(in);
+        long size = bmpFileSize(in);
+        in.seekg(10);
+        int offset = readBytes(in, 4);  //The offset of the byte where the pixel pixelArray starts
+        unsigned char array[size];
+
+        in.seekg(0);
+        for (int i = 0; i < size; ++i) {
+            array[i] = in.get();
+        }
+
+        in.close();
+
+        //int wi=offset;
+        int wi=0;
+        for(int i=0; i<message.size(); i++, wi++) {
+            if(i % 4 == 0 && bpp == 32) wi++;  //skip alpha
+            for(int j=0; j<8; j++) {
+//                array[offset + wi*8 + j] = array[offset + wi*8 + j] | 0b11111111;
+//                cout<<offset + wi*8 + j<<endl;
+                array[offset + wi*8 + j] &= 0b11111110;
+                array[offset + wi*8 + j] |= (message[i] >> j) & 1;
+            }
+//            array[wi] = array[wi] & 0;
+//            array[wi] = array[wi] & (message[i] & 1);
+        }
+
+        ofstream out;
+        out.open(path, ios::binary);
+        for(unsigned char c : array) {
+            out << c;
+        }
+        out.close();
+    }
+}
+
+void decryptMessage(const string& extension, ifstream& in) {
+    unsigned char byte = 0;
+    string message;
+    cout<<"Message: ";
+    if(extension == extensions[0]) {
+        in.seekg(10);
+        int offset = readBytes(in, 4);
+        int bpp = bmpColorDepth(in);
+        long size = bmpFileSize(in);
+        in.seekg(offset);
+        int bits=0;
+        for(int i=0; i<size; i++) {
+            if (i % 4 == 0 && bpp == 32) {  //skip alpha
+                in.ignore(1);
+                i++;
+            }
+
+            unsigned char bit = in.get() & 1;
+            if(bit != 0) byte |= 1 << bits;
+            bits++;
+
+            if(bits == 8) {
+                if(byte == '\u0003') break;
+                message += (char)byte;
+                byte = 0;
+                bits = 0;
+            }
+        }
+    }
+    cout<<message;
 }
 
 int main(int argc, const char* argv[]) {
@@ -139,6 +220,8 @@ int main(int argc, const char* argv[]) {
     const string useHelp = "\nUse -h or --help for more information.";
     const string messageIsPossible = "The given message can be either encrypted or decrypted from the file.";
     const string messageNotPossible = "The given message can be neither encrypted nor decrypted from the file.";
+    const string messageEncryptError = "Error: message cannot be encrypted in the given file.";
+    const string encrypted = "The message has been encrypted.";
 
     string message = helpMessage;
 
@@ -146,15 +229,16 @@ int main(int argc, const char* argv[]) {
         string flag = argv[1];
         if (flag[0] == '-') {
             ifstream in;
+            string ext;
+
             if (flag == "-h" || flag == "--help") {
                 if(checkArguments(argc, 0)) {
                     message = helpMessage;
                 } else message = useHelp;
 
             } else if (flag == "-i" || flag == "--info") {
-                if(checkArguments(argc, 1) && checkFile(argv[2]) && checkExtension(argv[2]) && checkPerms(argv[2], in)) {
-                    unsigned char byte;
-                    unsigned long info = 0;
+                if(checkArguments(argc, 1) && checkFile(argv[2]) && checkExtension(argv[2], ext) && checkPerms(argv[2], in)) {
+                    unsigned long info;
                     filesystem::path path = filesystem::path(argv[2]);
 
                     message = "file name: " + path.filename().string() +
@@ -174,20 +258,28 @@ int main(int argc, const char* argv[]) {
                 } else message = useHelp;
 
             } else if (flag == "-e" || flag == "--encrypt") {
-                if(checkArguments(argc, 2) && checkFile(argv[2]) && checkExtension(argv[2]) && checkPerms(argv[2], in)) {
-                    message = "enrypt"; //TODO
+                if(checkArguments(argc, 2) && checkFile(argv[2]) && checkExtension(argv[2], ext) && checkPerms(argv[2], in)) {
+                    string text = argv[3];
+                    text += '\u0003';  //end of text
+                    if(!checkMessage(text, ext, in)) message = messageEncryptError + useHelp;
+                    else {
+                        encryptMessage(text, ext, argv[2], in);
+                        message = encrypted;
+                    }
 
                 } else message = useHelp;
 
             } else if (flag == "-d" || flag == "--decrypt") {
-                if(checkArguments(argc, 1) && checkFile(argv[2]) && checkExtension(argv[2]) && checkPerms(argv[2], in)) {
-                    message = "decrypt"; //TODO
-
+                if(checkArguments(argc, 1) && checkFile(argv[2]) && checkExtension(argv[2], ext) && checkPerms(argv[2], in)) {
+                    decryptMessage(ext, in);
+                    message = "";
                 } else message = useHelp;
 
             } else if (flag == "-c" || flag == "--check") {
-                if(checkArguments(argc, 2) && checkFile(argv[2]) && checkExtension(argv[2]) && checkPerms(argv[2], in)) {
-                    if(checkMessage(argv[3], in)) message = messageIsPossible;
+                if(checkArguments(argc, 2) && checkFile(argv[2]) && checkExtension(argv[2], ext) && checkPerms(argv[2], in)) {
+                    string text = argv[3];
+                    text += '\u0003';  //end of text
+                    if(checkMessage(text, ext, in)) message = messageIsPossible;
                     else message = messageNotPossible;
 
                 } else message = useHelp;

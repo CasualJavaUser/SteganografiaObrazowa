@@ -106,10 +106,22 @@ int bmpColorDepth(ifstream& in) {
     return readBytes(in, 2);
 }
 
+/**
+ * Returns the number of pixels in the pixel array of the .bmp file.
+ * @param in - file stream that is used to read the file.
+ * @return the number of pixels in the pixel array.
+ */
+
 unsigned long long bmpPixelArraySize(ifstream& in) {
     in.seekg(18);
     return (readBytes(in,4) * readBytes(in,4));
 }
+
+/**
+ * Returns the file size in bytes of the .bmp file.
+ * @param in - file stream that is used to read the file.
+ * @return the size in bytes of the .bmp file.
+ */
 
 long bmpFileSize(ifstream& in) {
     in.seekg(2);
@@ -137,6 +149,14 @@ bool checkMessage(const string& message, const string& extension, ifstream& in) 
     return false;
 }
 
+/**
+ * Encrypts the message in the file.
+ * @param message - the message to be encrypted.
+ * @param extension - the extension of the file.
+ * @param path - file path.
+ * @param in - the file stream that is used to read the file.
+ */
+
 void encryptMessage (const string& message, const string& extension,const string& path, ifstream& in) {
     if(extension == extensions[0]) {
         int bpp = bmpColorDepth(in);
@@ -152,18 +172,13 @@ void encryptMessage (const string& message, const string& extension,const string
 
         in.close();
 
-        //int wi=offset;
         int wi=0;
         for(int i=0; i<message.size(); i++, wi++) {
             if(i % 4 == 0 && bpp == 32) wi++;  //skip alpha
             for(int j=0; j<8; j++) {
-//                array[offset + wi*8 + j] = array[offset + wi*8 + j] | 0b11111111;
-//                cout<<offset + wi*8 + j<<endl;
                 array[offset + wi*8 + j] &= 0b11111110;
                 array[offset + wi*8 + j] |= (message[i] >> j) & 1;
             }
-//            array[wi] = array[wi] & 0;
-//            array[wi] = array[wi] & (message[i] & 1);
         }
 
         ofstream out;
@@ -175,10 +190,16 @@ void encryptMessage (const string& message, const string& extension,const string
     }
 }
 
-void decryptMessage(const string& extension, ifstream& in) {
+/**
+ * Decrypts a message from the file and returns it.
+ * @param extension - the extension of the file.
+ * @param in - the file stream that is used to read the file.
+ * @return the message encrypted in the file.
+ */
+
+string decryptMessage(const string& extension, ifstream& in) {
     unsigned char byte = 0;
     string message;
-    cout<<"Message: ";
     if(extension == extensions[0]) {
         in.seekg(10);
         int offset = readBytes(in, 4);
@@ -204,7 +225,7 @@ void decryptMessage(const string& extension, ifstream& in) {
             }
         }
     }
-    cout<<message;
+    return message;
 }
 
 int main(int argc, const char* argv[]) {
@@ -271,8 +292,8 @@ int main(int argc, const char* argv[]) {
 
             } else if (flag == "-d" || flag == "--decrypt") {
                 if(checkArguments(argc, 1) && checkFile(argv[2]) && checkExtension(argv[2], ext) && checkPerms(argv[2], in)) {
-                    decryptMessage(ext, in);
-                    message = "";
+                    message = "Message: ";
+                    message += decryptMessage(ext, in);
                 } else message = useHelp;
 
             } else if (flag == "-c" || flag == "--check") {
@@ -287,7 +308,6 @@ int main(int argc, const char* argv[]) {
             } else {
                 message = noSuchFlag + flag + useHelp;
             }
-
         }
     }
     cout << message;

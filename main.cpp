@@ -86,9 +86,19 @@ bool checkPerms(const string& path, ifstream& in) {
  */
 
 long readBytes(ifstream& in, const int& count) {
-    long out;
+    long out = 0;
     unsigned char byte;
     for(int i=0; i<count; i++) {
+        byte = (unsigned char)in.get();
+        out = out | byte << 8 * i;
+    }
+    return out;
+}
+
+long readBytesReversed(ifstream& in, const int& count) {
+    long out = 0;
+    unsigned char byte;
+    for(int i=count-1; i>=0; i--) {
         byte = (unsigned char)in.get();
         out = out | byte << 8 * i;
     }
@@ -128,6 +138,56 @@ long bmpFileSize(ifstream& in) {
     return readBytes(in, 4);
 }
 
+string temp(unsigned long bytes) {
+    unsigned char byte;
+    string s;
+    for(int i=0; i<4; i++) {
+        byte = (bytes>>8*i) & 0b11111111;
+        s+=(char)byte;
+    }
+    return s;
+}
+
+long pngFileSize(ifstream& in) {
+    long size = 8, offset;
+    unsigned long chunkType = 0;
+    in.seekg(8);
+    while (chunkType != 1145980233) {  //IEND chunk
+        offset = readBytesReversed(in, 4) + 4;
+        chunkType = readBytes(in, 4);
+        size += offset + 8;
+        in.ignore(offset);
+    }
+    return size;
+}
+
+/**
+ * Gives information about the given file.
+ * @param path - file path;
+ * @param in - file stream that is used to read the file.
+ * @return string containing information about the file.
+ */
+
+string getInfo(const filesystem::path& path, ifstream& in) {
+    string message = "file name: " + path.filename().string() +
+                     "\nfile extension: " + path.extension().string();
+
+    if(path.extension().string() == extensions[0]) {
+        message += "\nfile size (bytes): " + to_string(bmpFileSize(in));
+        in.ignore(12);
+        message += "\nimage dimensions (pixels): " + to_string(readBytes(in,4)) + " x " + to_string(readBytes(in,4));
+    }
+
+    if(path.extension().string() == extensions[1]) {
+        message += "\nfile size (bytes): " + to_string(pngFileSize(in));
+        in.seekg(16);
+        message += "\nimage dimensions (pixels): " + to_string(readBytesReversed(in, 4)) + " x " + to_string(
+                readBytesReversed(in, 4));
+    }
+
+    return message;
+}
+
 /**
  * Check whether the given message can be either encrypted in or decrypted from the file.
  * @param message - the message to encrypt or decrypt.
@@ -146,6 +206,7 @@ bool checkMessage(const string& message, const string& extension, ifstream& in) 
         if (bitCapacity < messageBitSize) return false;
         return true;
     }
+
     return false;
 }
 
@@ -204,7 +265,7 @@ string decryptMessage(const string& extension, ifstream& in) {
         in.seekg(10);
         int offset = readBytes(in, 4);
         int bpp = bmpColorDepth(in);
-        long size = bmpFileSize(in);
+        unsigned long long size = bmpPixelArraySize(in);
         in.seekg(offset);
         int bits=0;
         for(int i=0; i<size; i++) {
@@ -259,23 +320,8 @@ int main(int argc, const char* argv[]) {
 
             } else if (flag == "-i" || flag == "--info") {
                 if(checkArguments(argc, 1) && checkFile(argv[2]) && checkExtension(argv[2], ext) && checkPerms(argv[2], in)) {
-                    unsigned long info;
                     filesystem::path path = filesystem::path(argv[2]);
-
-                    message = "file name: " + path.filename().string() +
-                              "\nfile extension: " + path.extension().string();
-
-                    in.ignore(2);
-                    info = readBytes(in, 4);  //4
-                    message += "\nfile size (bytes): " + to_string(info);
-
-                    in.ignore(12);
-                    info = readBytes(in, 4);
-                    message += "\nimage dimensions: " + to_string(info) + " x ";
-
-                    info = readBytes(in, 4);  //26
-                    message += to_string(info);
-
+                    message = getInfo(path, in);
                 } else message = useHelp;
 
             } else if (flag == "-e" || flag == "--encrypt") {

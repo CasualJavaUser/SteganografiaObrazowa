@@ -2,8 +2,9 @@
 #ifndef STEGANOGRAFIAOBRAZOWA_BMP_H
 #define STEGANOGRAFIAOBRAZOWA_BMP_H
 
-#endif //STEGANOGRAFIAOBRAZOWA_BMP_H
-
+#include <iostream>
+#include <fstream>
+#include <filesystem>
 #include "getBytes.h"
 
 using namespace std;
@@ -153,3 +154,5 @@ namespace BMP {
         return message;
     }
 }
+
+#endif //STEGANOGRAFIAOBRAZOWA_BMP_H

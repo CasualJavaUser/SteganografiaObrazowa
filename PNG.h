@@ -1,8 +1,6 @@
 #ifndef STEGANOGRAFIAOBRAZOWA_PNG_H
 #define STEGANOGRAFIAOBRAZOWA_PNG_H
 
-#endif //STEGANOGRAFIAOBRAZOWA_PNG_H
-
 #include <iostream>
 #include <fstream>
 #include <filesystem>
@@ -26,10 +24,14 @@ namespace PNG {
     }
 
     string getInfo(const fs::path& path, ifstream& in) {
-        string message = "\nfile size (bytes): " + to_string(fileSize(in));
+        string message = "file name: " + path.filename().string() +
+                         "\nfile extension: " + path.extension().string() +
+                         "\nfile size (bytes): " + to_string(fileSize(in));
         in.seekg(16);
         message += "\nimage dimensions (pixels): " + to_string(getBytesReversed(in, 4)) + " x " + to_string(
                 getBytesReversed(in, 4));
         return message;
     }
 }
+
+#endif //STEGANOGRAFIAOBRAZOWA_PNG_H

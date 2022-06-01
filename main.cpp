@@ -1,8 +1,11 @@
 #include <iostream>
 #include <fstream>
 #include <filesystem>
+#include "BMP.h"
+#include "PNG.h"
 
 using namespace std;
+namespace fs = filesystem;
 
 const string extensions[] = {".bmp",".png"};
 
@@ -28,7 +31,7 @@ bool checkArguments(const int& argc, const int& expected) {
  */
 
 bool checkExtension(const string& path, string& extension) {
-    filesystem::path p = filesystem::path(path);
+    fs::path p = fs::path(path);
     extension = p.extension().string();
     string message = "Error: File format is not supported. Supported formats: ";
 
@@ -50,11 +53,11 @@ bool checkExtension(const string& path, string& extension) {
  */
 
 bool checkFile(const string& path) {
-    if(filesystem::is_directory(path)) {
+    if(fs::is_directory(path)) {
         cout<<"Error: no file found.";
         return false;
     }
-    if(!filesystem::exists(path)) {
+    if(!fs::exists(path)) {
         cout<<"Error: cannot find file: " + path;
         return false;
     }
@@ -78,67 +81,7 @@ bool checkPerms(const string& path, ifstream& in) {
     return true;
 }
 
-/**
- * Reads the given number of bytes.
- * @param in - file stream from which the bytes are read.
- * @param count - the number of bytes.
- * @return the given number of bytes from the stream in a single long value.
- */
-
-long readBytes(ifstream& in, const int& count) {
-    long out = 0;
-    unsigned char byte;
-    for(int i=0; i<count; i++) {
-        byte = (unsigned char)in.get();
-        out = out | byte << 8 * i;
-    }
-    return out;
-}
-
-long readBytesReversed(ifstream& in, const int& count) {
-    long out = 0;
-    unsigned char byte;
-    for(int i=count-1; i>=0; i--) {
-        byte = (unsigned char)in.get();
-        out = out | byte << 8 * i;
-    }
-    return out;
-}
-
-/**
- * Reads the color depth value (bits per pixel) from the .bmp file.
- * @param in - file stream that is used to read the file.
- * @return the number of bits per pixel in the .bmp file.
- */
-
-int bmpColorDepth(ifstream& in) {
-    in.seekg(28);
-    return readBytes(in, 2);
-}
-
-/**
- * Returns the number of pixels in the pixel array of the .bmp file.
- * @param in - file stream that is used to read the file.
- * @return the number of pixels in the pixel array.
- */
-
-unsigned long long bmpPixelArraySize(ifstream& in) {
-    in.seekg(18);
-    return (readBytes(in,4) * readBytes(in,4));
-}
-
-/**
- * Returns the file size in bytes of the .bmp file.
- * @param in - file stream that is used to read the file.
- * @return the size in bytes of the .bmp file.
- */
-
-long bmpFileSize(ifstream& in) {
-    in.seekg(2);
-    return readBytes(in, 4);
-}
-
-string temp(unsigned long bytes) {
+/*string temp(unsigned long bytes) {
     unsigned char byte;
     string s;
     for(int i=0; i<4; i++) {
@@ -146,20 +89,7 @@ string temp(unsigned long bytes) {
         s+=(char)byte;
     }
     return s;
-}
-
-long pngFileSize(ifstream& in) {
-    long size = 8, offset;
-    unsigned long chunkType = 0;
-    in.seekg(8);
-    while (chunkType != 1145980233) {  //IEND chunk
-        offset = readBytesReversed(in, 4) + 4;
-        chunkType = readBytes(in, 4);
-        size += offset + 8;
-        in.ignore(offset);
-    }
-    return size;
-}
+}*/
 
 /**
  * Gives information about the given file.
@@ -168,21 +98,14 @@ long pngFileSize(ifstream& in) {
  * @return string containing information about the file.
  */
 
-string getInfo(const filesystem::path& path, ifstream& in) {
-    string message = "file name: " + path.filename().string() +
-                     "\nfile extension: " + path.extension().string();
+string getInfo(const fs::path& path, ifstream& in) {
+    string message;
 
     if(path.extension().string() == extensions[0]) {
-        message += "\nfile size (bytes): " + to_string(bmpFileSize(in));
-        in.ignore(12);
-        message += "\nimage dimensions (pixels): " + to_string(readBytes(in,4)) + " x " + to_string(readBytes(in,4));
+        message = BMP::getInfo(path, in);
     }
-
-    if(path.extension().string() == extensions[1]) {
-        message += "\nfile size (bytes): " + to_string(pngFileSize(in));
-        in.seekg(16);
-        message += "\nimage dimensions (pixels): " + to_string(readBytesReversed(in, 4)) + " x " + to_string(
-                readBytesReversed(in, 4));
+    else if(path.extension().string() == extensions[1]) {
+        message = PNG::getInfo(path, in);
     }
 
     return message;
@@ -197,17 +120,12 @@ string getInfo(const filesystem::path& path, ifstream& in) {
  */
 
 bool checkMessage(const string& message, const string& extension, ifstream& in) {
+    bool b = false;
     if(extension == extensions[0]) {
-        int bpp = bmpColorDepth(in);
-        if (bpp != 24 && bpp != 32) return false;  //unsupported type of bitmap
-        unsigned long long bitCapacity = bmpPixelArraySize(in) * 3;
-        unsigned long long messageBitSize = message.size() * 8;
-
-        if (bitCapacity < messageBitSize) return false;
-        return true;
+        b = BMP::checkMessage(message, extension, in);
     }
 
-    return false;
+    return b;
 }
 
 /**
@@ -220,34 +138,7 @@ bool checkMessage(const string& message, const string& extension, ifstream& in) 
 
 void encryptMessage (const string& message, const string& extension,const string& path, ifstream& in) {
     if(extension == extensions[0]) {
-        int bpp = bmpColorDepth(in);
-        long size = bmpFileSize(in);
-        in.seekg(10);
-        int offset = readBytes(in, 4);  //The offset of the byte where the pixel pixelArray starts
-        unsigned char array[size];
-
-        in.seekg(0);
-        for (int i = 0; i < size; ++i) {
-            array[i] = in.get();
-        }
-
-        in.close();
-
-        int wi=0;
-        for(int i=0; i<message.size(); i++, wi++) {
-            if(i % 4 == 0 && bpp == 32) wi++;  //skip alpha
-            for(int j=0; j<8; j++) {
-                array[offset + wi*8 + j] &= 0b11111110;
-                array[offset + wi*8 + j] |= (message[i] >> j) & 1;
-            }
-        }
-
-        ofstream out;
-        out.open(path, ios::binary);
-        for(unsigned char c : array) {
-            out << c;
-        }
-        out.close();
+        BMP::encryptMessage(message, path, in);
     }
 }
 
@@ -262,29 +153,7 @@ string decryptMessage(const string& extension, ifstream& in) {
     unsigned char byte = 0;
     string message;
     if(extension == extensions[0]) {
-        in.seekg(10);
-        int offset = readBytes(in, 4);
-        int bpp = bmpColorDepth(in);
-        unsigned long long size = bmpPixelArraySize(in);
-        in.seekg(offset);
-        int bits=0;
-        for(int i=0; i<size; i++) {
-            if (i % 4 == 0 && bpp == 32) {  //skip alpha
-                in.ignore(1);
-                i++;
-            }
-
-            unsigned char bit = in.get() & 1;
-            if(bit != 0) byte |= 1 << bits;
-            bits++;
-
-            if(bits == 8) {
-                if(byte == '\u0003') break;
-                message += (char)byte;
-                byte = 0;
-                bits = 0;
-            }
-        }
+        BMP::decryptMessage(in);
     }
     return message;
 }
@@ -320,7 +189,7 @@ int main(int argc, const char* argv[]) {
 
             } else if (flag == "-i" || flag == "--info") {
                 if(checkArguments(argc, 1) && checkFile(argv[2]) && checkExtension(argv[2], ext) && checkPerms(argv[2], in)) {
-                    filesystem::path path = filesystem::path(argv[2]);
+                    fs::path path = fs::path(argv[2]);
                     message = getInfo(path, in);
                 } else message = useHelp;
 

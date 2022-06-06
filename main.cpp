@@ -124,6 +124,10 @@ bool checkMessage(const string& message, const string& extension, ifstream& in) 
     if(extension == extensions[0]) {
         b = BMP::checkMessage(message, extension, in);
     }
+    else if(extension == extensions[1]) {
+        b = true;
+        cout<<PNG::pixelArraySize(in);
+    }
 
     return b;
 }

@@ -55,6 +55,30 @@ build CMakeFiles/SteganografiaObrazowa.dir/main.cpp.obj: CXX_COMPILER__Steganogr
   OBJECT_DIR = CMakeFiles\SteganografiaObrazowa.dir
   OBJECT_FILE_DIR = CMakeFiles\SteganografiaObrazowa.dir
 
+build CMakeFiles/SteganografiaObrazowa.dir/PNG.cpp.obj: CXX_COMPILER__SteganografiaObrazowa_Debug D$:/Users/maxbe/CLionProjects/SteganografiaObrazowa/PNG.cpp || cmake_object_order_depends_target_SteganografiaObrazowa
+  DEP_FILE = CMakeFiles\SteganografiaObrazowa.dir\PNG.cpp.obj.d
+  FLAGS = -g
+  OBJECT_DIR = CMakeFiles\SteganografiaObrazowa.dir
+  OBJECT_FILE_DIR = CMakeFiles\SteganografiaObrazowa.dir
+
+build CMakeFiles/SteganografiaObrazowa.dir/BMP.cpp.obj: CXX_COMPILER__SteganografiaObrazowa_Debug D$:/Users/maxbe/CLionProjects/SteganografiaObrazowa/BMP.cpp || cmake_object_order_depends_target_SteganografiaObrazowa
+  DEP_FILE = CMakeFiles\SteganografiaObrazowa.dir\BMP.cpp.obj.d
+  FLAGS = -g
+  OBJECT_DIR = CMakeFiles\SteganografiaObrazowa.dir
+  OBJECT_FILE_DIR = CMakeFiles\SteganografiaObrazowa.dir
+
+build CMakeFiles/SteganografiaObrazowa.dir/getBytes.cpp.obj: CXX_COMPILER__SteganografiaObrazowa_Debug D$:/Users/maxbe/CLionProjects/SteganografiaObrazowa/getBytes.cpp || cmake_object_order_depends_target_SteganografiaObrazowa
+  DEP_FILE = CMakeFiles\SteganografiaObrazowa.dir\getBytes.cpp.obj.d
+  FLAGS = -g
+  OBJECT_DIR = CMakeFiles\SteganografiaObrazowa.dir
+  OBJECT_FILE_DIR = CMakeFiles\SteganografiaObrazowa.dir
+
+build CMakeFiles/SteganografiaObrazowa.dir/testClass.cpp.obj: CXX_COMPILER__SteganografiaObrazowa_Debug D$:/Users/maxbe/CLionProjects/SteganografiaObrazowa/testClass.cpp || cmake_object_order_depends_target_SteganografiaObrazowa
+  DEP_FILE = CMakeFiles\SteganografiaObrazowa.dir\testClass.cpp.obj.d
+  FLAGS = -g
+  OBJECT_DIR = CMakeFiles\SteganografiaObrazowa.dir
+  OBJECT_FILE_DIR = CMakeFiles\SteganografiaObrazowa.dir
+
 
 # =============================================================================
 # Link build statements for EXECUTABLE target SteganografiaObrazowa
@@ -63,7 +87,7 @@ build CMakeFiles/SteganografiaObrazowa.dir/main.cpp.obj: CXX_COMPILER__Steganogr
 #############################################
 # Link the executable SteganografiaObrazowa.exe
 
-build SteganografiaObrazowa.exe: CXX_EXECUTABLE_LINKER__SteganografiaObrazowa_Debug CMakeFiles/SteganografiaObrazowa.dir/main.cpp.obj
+build SteganografiaObrazowa.exe: CXX_EXECUTABLE_LINKER__SteganografiaObrazowa_Debug CMakeFiles/SteganografiaObrazowa.dir/main.cpp.obj CMakeFiles/SteganografiaObrazowa.dir/PNG.cpp.obj CMakeFiles/SteganografiaObrazowa.dir/BMP.cpp.obj CMakeFiles/SteganografiaObrazowa.dir/getBytes.cpp.obj CMakeFiles/SteganografiaObrazowa.dir/testClass.cpp.obj
   FLAGS = -g
   LINK_LIBRARIES = -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
   OBJECT_DIR = CMakeFiles\SteganografiaObrazowa.dir

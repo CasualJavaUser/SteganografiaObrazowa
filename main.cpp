@@ -1,5 +1,4 @@
 #include <iostream>
-#include <fstream>
 #include <filesystem>
 #include "BMP.h"
 #include "PNG.h"
@@ -121,14 +120,8 @@ string getInfo(const fs::path& path, ifstream& in) {
 
 bool checkMessage(const string& message, const string& extension, ifstream& in) {
     bool b = false;
-    if(extension == extensions[0]) {
-        b = BMP::checkMessage(message, extension, in);
-    }
-    else if(extension == extensions[1]) {
-        b = true;
-        cout<<PNG::pixelArraySize(in);
-    }
-
+    if(extension == extensions[0]) b = BMP::checkMessage(message, in);
+    else if(extension == extensions[1]) b = PNG::checkMessage(message, in);
     return b;
 }
 
@@ -154,10 +147,9 @@ void encryptMessage (const string& message, const string& extension,const string
  */
 
 string decryptMessage(const string& extension, ifstream& in) {
-    unsigned char byte = 0;
     string message;
     if(extension == extensions[0]) {
-        BMP::decryptMessage(in);
+        message = BMP::decryptMessage(in);
     }
     return message;
 }

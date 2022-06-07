@@ -1,6 +1,7 @@
 # ninja log v5
 57	2314	6762520988352196	CMakeFiles/SteganografiaObrazowa.dir/main.cpp.obj	b9a67bad608c30ae
 2314	2854	6762520993551072	SteganografiaObrazowa.exe	eb99c0d5bb21ac59
-60	1960	6762520984103645	CMakeFiles/SteganografiaObrazowa.dir/getBytes.cpp.obj	c0fe8de499df4408
 54	2305	6762520988180844	CMakeFiles/SteganografiaObrazowa.dir/BMP.cpp.obj	400f207b738c19a4
+60	1960	6762520984103645	CMakeFiles/SteganografiaObrazowa.dir/getBytes.cpp.obj	c0fe8de499df4408
+0	284	6762539011524140	build.ninja	7c8684029481f711
 3	2302	6762520988140128	CMakeFiles/SteganografiaObrazowa.dir/PNG.cpp.obj	f261255fd24b1852

@@ -16,7 +16,7 @@ namespace BMP {
      * @param in - file stream that is used to read the file.
      * @return the number of bits per pixel in the .bmp file.
      */
-    int colorDepth(ifstream& in);
+    unsigned int colorDepth(ifstream& in);
 
     /**
      * Returns the number of pixels in the pixel array of the .bmp file.
@@ -30,7 +30,7 @@ namespace BMP {
      * @param in - file stream that is used to read the file.
      * @return the size in bytes of the .bmp file.
      */
-    long fileSize(ifstream& in);
+    unsigned long fileSize(ifstream& in);
 
     /**
      * Gives information about the given file.
@@ -48,7 +48,7 @@ namespace BMP {
      * @param in - the file stream that is used to read the file.
      * @return true if it's possible to encrypt or decrypt the message from the given file.
      */
-    bool checkMessage(const string& message, const string& extension, ifstream& in);
+    bool checkMessage(const string& message, ifstream& in);
 
     /**
      * Encrypts the message in the file.

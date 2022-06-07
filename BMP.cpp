@@ -1,7 +1,7 @@
 #include "BMP.h"
 #include "getBytes.h"
 
-int BMP::colorDepth(ifstream& in) {
+unsigned int BMP::colorDepth(ifstream& in) {
     in.seekg(28);
     return (int)getBytes(in, 2);
 }
@@ -11,7 +11,7 @@ unsigned long long BMP::pixelArraySize(ifstream &in) {
     return (getBytes(in,4) * getBytes(in,4));
 }
 
-long BMP::fileSize(ifstream &in) {
+unsigned long BMP::fileSize(ifstream &in) {
     in.seekg(2);
     return getBytes(in, 4);
 }
@@ -22,12 +22,13 @@ string BMP::getInfo(const fs::path &path, ifstream &in) {
                      "\nfile size (bytes): " + to_string(fileSize(in));
     in.ignore(12);
     message += "\nimage dimensions (pixels): " + to_string(getBytes(in, 4)) + " x " + to_string(getBytes(in, 4));
+    message += "\ncolor depth: " + to_string(colorDepth(in));
 
     return message;
 }
 
-bool BMP::checkMessage(const string &message, const string &extension, ifstream &in) {
-    int bpp = colorDepth(in);
+bool BMP::checkMessage(const string &message, ifstream &in) {
+    unsigned int bpp = colorDepth(in);
     if (bpp != 24 && bpp != 32) return false;  //unsupported type of bitmap
 
     unsigned long long bitCapacity = pixelArraySize(in) * 3;
@@ -38,8 +39,8 @@ bool BMP::checkMessage(const string &message, const string &extension, ifstream 
 }
 
 void BMP::encryptMessage(const string &message, const string &path, ifstream &in) {
-    int bpp = colorDepth(in);
-    long size = fileSize(in);
+    unsigned int bpp = colorDepth(in);
+    unsigned long size = fileSize(in);
     in.seekg(10);
     int offset = getBytes(in, 4);  //The offset of the byte where the pixel pixelArray starts
     unsigned char array[size];
@@ -50,7 +51,6 @@ void BMP::encryptMessage(const string &message, const string &path, ifstream &in
     }
 
     in.close();
-
     int wi = 0;
     for (int i = 0; i < message.size(); i++, wi++) {
         if (i % 4 == 0 && bpp == 32) wi++;  //skip alpha
@@ -73,7 +73,7 @@ string BMP::decryptMessage(ifstream &in) {
     string message;
     in.seekg(10);
     int offset = getBytes(in, 4);
-    int bpp = colorDepth(in);
+    unsigned int bpp = colorDepth(in);
     unsigned long long size = pixelArraySize(in);
     in.seekg(offset);
     int bits = 0;

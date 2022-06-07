@@ -21,7 +21,8 @@ string BMP::getInfo(const fs::path &path, ifstream &in) {
                      "\nfile extension: " + path.extension().string() +
                      "\nfile size (bytes): " + to_string(fileSize(in));
     in.ignore(12);
-    message += "\nimage dimensions (pixels): " + to_string(getBytes(in, 4)) + " x " + to_string(getBytes(in, 4));
+    message += "\nimage dimensions (pixels): " + to_string(getBytes(in, 4)) + " x " +
+            to_string(getBytes(in, 4));
     message += "\ncolor depth: " + to_string(colorDepth(in));
 
     return message;

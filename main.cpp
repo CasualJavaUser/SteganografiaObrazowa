@@ -2,11 +2,12 @@
 #include <filesystem>
 #include "BMP.h"
 #include "PNG.h"
+#include "GIF.h"
 
 using namespace std;
 namespace fs = filesystem;
 
-const string extensions[] = {".bmp",".png"};
+const string extensions[] = {".bmp",".png", ".gif"};
 
 /**
  * Returns true if the number of arguments is equal to the expected number.
@@ -99,13 +100,9 @@ bool checkPerms(const string& path, ifstream& in) {
 
 string getInfo(const fs::path& path, ifstream& in) {
     string message;
-
-    if(path.extension().string() == extensions[0]) {
-        message = BMP::getInfo(path, in);
-    }
-    else if(path.extension().string() == extensions[1]) {
-        message = PNG::getInfo(path, in);
-    }
+    if (path.extension().string() == extensions[0]) message = BMP::getInfo(path, in);
+    else if (path.extension().string() == extensions[1]) message = PNG::getInfo(path, in);
+    else if (path.extension().string() == extensions[2]) message = GIF::getInfo(path, in);
 
     return message;
 }

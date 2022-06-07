@@ -19,7 +19,7 @@ string PNG::colorTypeName(ifstream& in) {
 }
 
 unsigned int PNG::colorDepth(ifstream &in) {
-    int channels = 0;
+    unsigned int channels = 0;
     if (colorType(in) == 2) channels = 3;
     else if(colorType(in) == 6) channels = 4;
     in.seekg(24);
@@ -32,7 +32,7 @@ unsigned long long PNG::pixelArraySize(ifstream &in) {
 }
 
 unsigned long PNG::fileSize(ifstream &in) {
-    long size = 8, offset;
+    unsigned long size = 8, offset;
     unsigned long chunkType = 0;
     in.seekg(8);
     while (chunkType != 1145980233) {  //IEND chunk
@@ -44,13 +44,29 @@ unsigned long PNG::fileSize(ifstream &in) {
     return size;
 }
 
+unsigned char *PNG::huffmanDec(unsigned char *&array) {
+    return nullptr;
+}
+
+unsigned char *PNG::huffmanCom(unsigned char *&array) {
+    return nullptr;
+}
+
+unsigned char *PNG::lzssDec(unsigned char *&array) {
+    return nullptr;
+}
+
+unsigned char *PNG::lzssCom(unsigned char *&array) {
+    return nullptr;
+}
+
 string PNG::getInfo(const fs::path &path, ifstream &in) {
     string message = "file name: " + path.filename().string() +
                      "\nfile extension: " + path.extension().string() +
                      "\nfile size (bytes): " + to_string(fileSize(in));
     in.seekg(16);
-    message += "\nimage dimensions (pixels): " + to_string(getBytesReversed(in, 4)) + " x " + to_string(
-            getBytesReversed(in, 4));
+    message += "\nimage dimensions (pixels): " + to_string(getBytesReversed(in, 4)) + " x " +
+            to_string(getBytesReversed(in, 4));
     message += "\ncolor type: " + colorTypeName(in);
     in.seekg(24);
     message += "\nbits per channel: " + to_string(getBytesReversed(in, 1));

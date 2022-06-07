@@ -14,6 +14,10 @@ namespace PNG {
     unsigned int colorDepth(ifstream& in);
     unsigned long long pixelArraySize(ifstream& in);
     unsigned long fileSize(ifstream& in);
+    unsigned char* huffmanDec(unsigned char*& array);
+    unsigned char* huffmanCom(unsigned char*& array);
+    unsigned char* lzssDec(unsigned char*& array);
+    unsigned char* lzssCom(unsigned char*& array);
     string getInfo(const fs::path& path, ifstream& in);
     bool checkMessage(const string& message, ifstream& in);
 }

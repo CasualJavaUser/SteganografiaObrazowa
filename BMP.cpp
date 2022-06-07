@@ -3,17 +3,17 @@
 
 unsigned int BMP::colorDepth(ifstream& in) {
     in.seekg(28);
-    return (int)getBytes(in, 2);
+    return (int) getBytesSE(in, 2);
 }
 
 unsigned long long BMP::pixelArraySize(ifstream &in) {
     in.seekg(18);
-    return (getBytes(in,4) * getBytes(in,4));
+    return (getBytesSE(in, 4) * getBytesSE(in, 4));
 }
 
 unsigned long BMP::fileSize(ifstream &in) {
     in.seekg(2);
-    return getBytes(in, 4);
+    return getBytesSE(in, 4);
 }
 
 string BMP::getInfo(const fs::path &path, ifstream &in) {
@@ -21,8 +21,8 @@ string BMP::getInfo(const fs::path &path, ifstream &in) {
                      "\nfile extension: " + path.extension().string() +
                      "\nfile size (bytes): " + to_string(fileSize(in));
     in.ignore(12);
-    message += "\nimage dimensions (pixels): " + to_string(getBytes(in, 4)) + " x " +
-            to_string(getBytes(in, 4));
+    message += "\nimage dimensions (pixels): " + to_string(getBytesSE(in, 4)) + " x " +
+               to_string(getBytesSE(in, 4));
     message += "\ncolor depth: " + to_string(colorDepth(in));
 
     return message;
@@ -43,7 +43,7 @@ void BMP::encryptMessage(const string &message, const string &path, ifstream &in
     unsigned int bpp = colorDepth(in);
     unsigned long size = fileSize(in);
     in.seekg(10);
-    int offset = getBytes(in, 4);  //The offset of the byte where the pixel pixelArray starts
+    int offset = getBytesSE(in, 4);  //The offset of the byte where the pixel pixelArray starts
     unsigned char array[size];
 
     in.seekg(0);
@@ -73,7 +73,7 @@ string BMP::decryptMessage(ifstream &in) {
     unsigned char byte = 0;
     string message;
     in.seekg(10);
-    int offset = getBytes(in, 4);
+    int offset = getBytesSE(in, 4);
     unsigned int bpp = colorDepth(in);
     unsigned long long size = pixelArraySize(in);
     in.seekg(offset);

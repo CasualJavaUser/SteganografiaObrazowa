@@ -3,7 +3,7 @@
 
 unsigned int PNG::colorType(ifstream &in) {
     in.seekg(25);
-    return getBytesReversed(in, 1);
+    return getBytesBE(in, 1);
 }
 
 string PNG::colorTypeName(ifstream& in) {
@@ -23,25 +23,46 @@ unsigned int PNG::colorDepth(ifstream &in) {
     if (colorType(in) == 2) channels = 3;
     else if(colorType(in) == 6) channels = 4;
     in.seekg(24);
-    return getBytesReversed(in, 1) * channels;
+    return getBytesBE(in, 1) * channels;
 }
 
 unsigned long long PNG::pixelArraySize(ifstream &in) {
     in.seekg(16);
-    return getBytesReversed(in, 4) * getBytesReversed(in, 4);
+    return getBytesBE(in, 4) * getBytesBE(in, 4);
 }
 
 unsigned long PNG::fileSize(ifstream &in) {
     unsigned long size = 8, offset;
     unsigned long chunkType = 0;
     in.seekg(8);
-    while (chunkType != 1145980233) {  //IEND chunk
-        offset = getBytesReversed(in, 4) + 4;
-        chunkType = getBytes(in, 4);
+    while (chunkType != 0x49454E44) {  //IEND chunk
+        offset = getBytesBE(in, 4) + 4;
+        chunkType = getBytesBE(in, 4);
         size += offset + 8;
         in.ignore(offset);
     }
     return size;
+}
+
+unsigned char *PNG::pixelArray(ifstream& in) {
+    unsigned long size = 0;
+    unsigned long chunkType = 0;
+    in.seekg(8);
+    while (chunkType != 0x49444154) {  //IDAT chunk
+        in.ignore(size);
+        size = getBytesBE(in, 4) + 4;
+        chunkType = getBytesBE(in, 4);
+    }
+
+    in.ignore(2);
+    size -= 6;
+    unsigned char array[size];
+
+    for (int i = 0; i < size; i++) {
+        array[i] = (unsigned char)getBytesBE(in, 1);
+    }
+
+    return array;
 }
 
 unsigned char *PNG::huffmanDec(unsigned char *array) {
@@ -60,16 +81,20 @@ unsigned char *PNG::lzssCom(unsigned char *array) {
     return nullptr;
 }
 
+unsigned char *PNG::reverseFilter(unsigned char *array) {
+    return nullptr;
+}
+
 string PNG::getInfo(const fs::path &path, ifstream &in) {
     string message = "file name: " + path.filename().string() +
                      "\nfile extension: " + path.extension().string() +
                      "\nfile size (bytes): " + to_string(fileSize(in));
     in.seekg(16);
-    message += "\nimage dimensions (pixels): " + to_string(getBytesReversed(in, 4)) + " x " +
-            to_string(getBytesReversed(in, 4));
+    message += "\nimage dimensions (pixels): " + to_string(getBytesBE(in, 4)) + " x " +
+               to_string(getBytesBE(in, 4));
     message += "\ncolor type: " + colorTypeName(in);
     in.seekg(24);
-    message += "\nbits per channel: " + to_string(getBytesReversed(in, 1));
+    message += "\nbits per channel: " + to_string(getBytesBE(in, 1));
     return message;
 }
 

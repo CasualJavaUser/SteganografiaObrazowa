@@ -7,7 +7,7 @@
 
 using namespace std;
 
-long getBytes(ifstream &in, const int &count);
-long getBytesReversed(ifstream& in, const int& count);
+long getBytesSE(ifstream &in, const int &count);
+long getBytesBE(ifstream& in, const int& count);
 
 #endif //STEGANOGRAFIAOBRAZOWA_BITOPS_H

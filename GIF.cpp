@@ -10,7 +10,7 @@ string GIF::getInfo(const fs::path &path, ifstream &in) {
                      "\nfile extension: " + path.extension().string() +
                      "\nfile size (bytes): " + to_string(fileSize(in));
     in.seekg(6);
-    message += "\nimage dimensions (pixels): " + to_string(getBytes(in, 2)) + " x " +
-            to_string(getBytes(in, 2));
+    message += "\nimage dimensions (pixels): " + to_string(getBytesSE(in, 2)) + " x " +
+               to_string(getBytesSE(in, 2));
     return message;
 }

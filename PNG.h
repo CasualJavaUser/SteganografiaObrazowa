@@ -14,6 +14,7 @@ namespace PNG {
     unsigned int colorDepth(ifstream& in);
     unsigned long long pixelArraySize(ifstream& in);
     unsigned long fileSize(ifstream& in);
+    unsigned char* pixelArray(ifstream& in);
     unsigned char* huffmanDec(unsigned char* array);
     unsigned char* huffmanCom(unsigned char* array);
     unsigned char* lzssDec(unsigned char* array);

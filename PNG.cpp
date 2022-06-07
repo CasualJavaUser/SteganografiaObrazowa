@@ -56,7 +56,7 @@ unsigned char *PNG::pixelArray(ifstream& in) {
 
     in.ignore(2);
     size -= 6;
-    unsigned char array[size];
+    unsigned char *array = new unsigned char[size];
 
     for (int i = 0; i < size; i++) {
         array[i] = (unsigned char)getBytesBE(in, 1);

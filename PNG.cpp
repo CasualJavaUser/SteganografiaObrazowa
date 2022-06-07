@@ -44,19 +44,19 @@ unsigned long PNG::fileSize(ifstream &in) {
     return size;
 }
 
-unsigned char *PNG::huffmanDec(unsigned char *&array) {
+unsigned char *PNG::huffmanDec(unsigned char *array) {
     return nullptr;
 }
 
-unsigned char *PNG::huffmanCom(unsigned char *&array) {
+unsigned char *PNG::huffmanCom(unsigned char *array) {
     return nullptr;
 }
 
-unsigned char *PNG::lzssDec(unsigned char *&array) {
+unsigned char *PNG::lzssDec(unsigned char *array) {
     return nullptr;
 }
 
-unsigned char *PNG::lzssCom(unsigned char *&array) {
+unsigned char *PNG::lzssCom(unsigned char *array) {
     return nullptr;
 }
 

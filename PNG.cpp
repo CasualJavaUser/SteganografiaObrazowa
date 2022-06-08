@@ -31,6 +31,11 @@ unsigned long long PNG::pixelArraySize(ifstream &in) {
     return getBytesBE(in, 4) * getBytesBE(in, 4);
 }
 
+unsigned int PNG::imageWidth(ifstream & in) {
+    in.seekg(16);
+    return getBytesBE(in, 4);
+}
+
 unsigned long PNG::fileSize(ifstream &in) {
     unsigned long size = 8, offset;
     unsigned long chunkType = 0;

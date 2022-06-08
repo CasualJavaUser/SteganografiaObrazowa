@@ -9,19 +9,20 @@ using namespace std;
 namespace fs = filesystem;
 
 namespace PNG {
-    unsigned int colorType(ifstream& in);
-    string colorTypeName(ifstream& in);
-    unsigned int colorDepth(ifstream& in);
-    unsigned long long pixelArraySize(ifstream& in);
-    unsigned long fileSize(ifstream& in);
-    unsigned char* pixelArray(ifstream& in);
-    unsigned char* huffmanDec(unsigned char* array);
-    unsigned char* huffmanCom(unsigned char* array);
-    unsigned char* lzssDec(unsigned char* array);
-    unsigned char* lzssCom(unsigned char* array);
-    unsigned char* reverseFilter(unsigned char* array);
-    string getInfo(const fs::path& path, ifstream& in);
-    bool checkMessage(const string& message, ifstream& in);
+    unsigned int colorType(ifstream&);
+    string colorTypeName(ifstream&);
+    unsigned int colorDepth(ifstream&);
+    unsigned long long pixelArraySize(ifstream&);
+    unsigned int imageWidth(ifstream&);
+    unsigned long fileSize(ifstream&);
+    unsigned char* pixelArray(ifstream&);
+    unsigned char* huffmanDec(unsigned char*);
+    unsigned char* huffmanCom(unsigned char*);
+    unsigned char* lzssDec(unsigned char*);
+    unsigned char* lzssCom(unsigned char*);
+    unsigned char* reverseFilter(unsigned char*);
+    string getInfo(const fs::path&, ifstream&);
+    bool checkMessage(const string&, ifstream&);
 }
 
 #endif //STEGANOGRAFIAOBRAZOWA_PNG_H

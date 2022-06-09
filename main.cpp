@@ -71,7 +71,8 @@ bool checkFile(const string& path) {
  * @return true if the file can be opened.
  */
 
-bool checkPerms(const string& path, ifstream& in) {
+bool checkPerms(const string& path) {
+    ifstream in;
     in.open(path, ios::binary);
     if(!in.is_open()) {
         cout<<"Error: cannot open file: " + path;
@@ -157,7 +158,7 @@ void encryptMessage (const string& message, const fs::path& path) {
  * @return the message encrypted in the file.
  */
 
-string decryptMessage(const fs::path& path, ifstream& in) {
+string decryptMessage(const fs::path& path) {
     string message;
     if(path.extension().string() == extensions[0]) {
         message = (new BMP(path.string()))->decryptMessage();
@@ -186,22 +187,19 @@ int main(int argc, const char* argv[]) {
     if (argc > 1) {
         string flag = argv[1];
         if (flag[0] == '-') {
-            ifstream in;
-            string ext;
-
             if (flag == "-h" || flag == "--help") {
                 if(checkArguments(argc, 0)) {
                     message = helpMessage;
                 } else message = useHelp;
 
             } else if (flag == "-i" || flag == "--info") {
-                if(checkArguments(argc, 1) && checkFile(argv[2]) && checkExtension(argv[2]) && checkPerms(argv[2], in)) {
+                if(checkArguments(argc, 1) && checkFile(argv[2]) && checkExtension(argv[2]) && checkPerms(argv[2])) {
                     fs::path path = fs::path(argv[2]);
                     message = getInfo(path);
                 } else message = useHelp;
 
             } else if (flag == "-e" || flag == "--encrypt") {
-                if(checkArguments(argc, 2) && checkFile(argv[2]) && checkExtension(argv[2]) && checkPerms(argv[2], in)) {
+                if(checkArguments(argc, 2) && checkFile(argv[2]) && checkExtension(argv[2]) && checkPerms(argv[2])) {
                     fs::path path = fs::path(argv[2]);
                     string text = argv[3];
                     text += '\u0003';  //end of text
@@ -214,14 +212,14 @@ int main(int argc, const char* argv[]) {
                 } else message = useHelp;
 
             } else if (flag == "-d" || flag == "--decrypt") {
-                if(checkArguments(argc, 1) && checkFile(argv[2]) && checkExtension(argv[2]) && checkPerms(argv[2], in)) {
+                if(checkArguments(argc, 1) && checkFile(argv[2]) && checkExtension(argv[2]) && checkPerms(argv[2])) {
                     fs::path path = fs::path(argv[2]);
                     message = "Message: ";
-                    message += decryptMessage(path, in);
+                    message += decryptMessage(path);
                 } else message = useHelp;
 
             } else if (flag == "-c" || flag == "--check") {
-                if(checkArguments(argc, 2) && checkFile(argv[2]) && checkExtension(argv[2]) && checkPerms(argv[2], in)) {
+                if(checkArguments(argc, 2) && checkFile(argv[2]) && checkExtension(argv[2]) && checkPerms(argv[2])) {
                     fs::path path = fs::path(argv[2]);
                     string text = argv[3];
                     text += '\u0003';  //end of text

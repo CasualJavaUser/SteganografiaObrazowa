@@ -4,12 +4,14 @@
 #include <iostream>
 #include <fstream>
 #include <filesystem>
+#include "Image.h"
 
 using namespace std;
 namespace fs = filesystem;
 
-namespace GIF {
-    unsigned long fileSize(ifstream& in);
-    string getInfo(const fs::path& path, ifstream& in);
-}
+class GIF : Image {
+    GIF(const string&);
+    unsigned long fileSize();
+    string getInfo();
+};
 #endif //STEGANOGRAFIAOBRAZOWA_GIF_H

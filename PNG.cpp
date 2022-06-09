@@ -1,13 +1,18 @@
 #include "PNG.h"
 #include "getBytes.h"
 
-unsigned int PNG::colorType(ifstream &in) {
+PNG::PNG(const string & path) {
+    this->path = path;
+    in.open(path, ios::binary);
+}
+
+unsigned int PNG::colorType() {
     in.seekg(25);
     return getBytesBE(in, 1);
 }
 
-string PNG::colorTypeName(ifstream& in) {
-    unsigned int ct = colorType(in);
+string PNG::colorTypeName() {
+    unsigned int ct = colorType();
     switch (ct) {
         case 0: return "grayscale";
         case 2: return "RGB/truecolor";
@@ -18,25 +23,25 @@ string PNG::colorTypeName(ifstream& in) {
     }
 }
 
-unsigned int PNG::colorDepth(ifstream &in) {
+unsigned int PNG::colorDepth() {
     unsigned int channels = 0;
-    if (colorType(in) == 2) channels = 3;
-    else if(colorType(in) == 6) channels = 4;
+    if (colorType() == 2) channels = 3;
+    else if(colorType() == 6) channels = 4;
     in.seekg(24);
     return getBytesBE(in, 1) * channels;
 }
 
-unsigned long long PNG::pixelArraySize(ifstream &in) {
+unsigned long long PNG::pixelArraySize() {
     in.seekg(16);
     return getBytesBE(in, 4) * getBytesBE(in, 4);
 }
 
-unsigned int PNG::imageWidth(ifstream & in) {
+unsigned int PNG::imageWidth() {
     in.seekg(16);
     return getBytesBE(in, 4);
 }
 
-unsigned long PNG::fileSize(ifstream &in) {
+unsigned long PNG::fileSize() {
     unsigned long size = 8, offset;
     unsigned long chunkType = 0;
     in.seekg(8);
@@ -49,7 +54,7 @@ unsigned long PNG::fileSize(ifstream &in) {
     return size;
 }
 
-unsigned char *PNG::pixelArray(ifstream& in) {
+unsigned char *PNG::pixelArray() {
     unsigned long size = 0;
     unsigned long chunkType = 0;
     in.seekg(8);
@@ -90,24 +95,25 @@ unsigned char *PNG::reverseFilter(unsigned char *array) {
     return nullptr;
 }
 
-string PNG::getInfo(const fs::path &path, ifstream &in) {
-    string message = "file name: " + path.filename().string() +
-                     "\nfile extension: " + path.extension().string() +
-                     "\nfile size (bytes): " + to_string(fileSize(in));
+string PNG::getInfo() {
+    fs::path p = fs::path(path);
+    string message = "file name: " + p.filename().string() +
+                     "\nfile extension: " + p.extension().string() +
+                     "\nfile size (bytes): " + to_string(fileSize());
     in.seekg(16);
     message += "\nimage dimensions (pixels): " + to_string(getBytesBE(in, 4)) + " x " +
                to_string(getBytesBE(in, 4));
-    message += "\ncolor type: " + colorTypeName(in);
+    message += "\ncolor type: " + colorTypeName();
     in.seekg(24);
     message += "\nbits per channel: " + to_string(getBytesBE(in, 1));
     return message;
 }
 
-bool PNG::checkMessage(const string &message, ifstream &in) {
-    unsigned int ct = colorType(in);
+bool PNG::checkMessage(const string &message) {
+    unsigned int ct = colorType();
     if (ct != 2 && ct != 6) return false;  //unsupported type of png
 
-    unsigned long long bitCapacity = pixelArraySize(in) * 3;
+    unsigned long long bitCapacity = pixelArraySize() * 3;
     unsigned long long messageBitSize = message.size() * 8;
 
     if (bitCapacity < messageBitSize) return false;

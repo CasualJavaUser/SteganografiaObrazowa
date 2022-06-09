@@ -26,13 +26,12 @@ bool checkArguments(const int& argc, const int& expected) {
  * Returns true if the file's format is supported.
  * Othewise, returns false and prints an error message.
  * @param path - file path.
- * @param extension - string storing the file's extension.
  * @return true if the file's format is supported.
  */
 
-bool checkExtension(const string& path, string& extension) {
+bool checkExtension(const string& path) {
     fs::path p = fs::path(path);
-    extension = p.extension().string();
+    string extension = p.extension().string();
     string message = "Error: File format is not supported. Supported formats: ";
 
     for(const string& e : extensions) {
@@ -98,13 +97,20 @@ bool checkPerms(const string& path, ifstream& in) {
  * @return string containing information about the file.
  */
 
-string getInfo(const fs::path& path, ifstream& in) {
+/*string getInfo(const fs::path& path, ifstream& in) {
     string message;
     if (path.extension().string() == extensions[0]) message = BMP::getInfo(path, in);
     else if (path.extension().string() == extensions[1]) message = PNG::getInfo(path, in);
     else if (path.extension().string() == extensions[2]) message = GIF::getInfo(path, in);
 
     return message;
+}*/
+
+string getInfo(const fs::path & path) {
+    string ext = path.extension().string();
+    if (ext == extensions[0]) return (new BMP(path.string()))->getInfo();
+    else if (ext == extensions[1]) return (new PNG(path.string()))->getInfo();
+    return "";
 }
 
 /**
@@ -115,10 +121,18 @@ string getInfo(const fs::path& path, ifstream& in) {
  * @return true if it's possible to encrypt or decrypt the message from the given file.
  */
 
-bool checkMessage(const string& message, const string& extension, ifstream& in) {
+/*bool checkMessage(const string& message, const string& extension, ifstream& in) {
     bool b = false;
     if(extension == extensions[0]) b = BMP::checkMessage(message, in);
     else if(extension == extensions[1]) b = PNG::checkMessage(message, in);
+    return b;
+}*/
+
+bool checkMessage (const string& message, const fs::path& path) {
+    bool b = false;
+    string ext = path.extension().string();
+    if (ext == extensions[0]) b = (new BMP(path.string()))->checkMessage(message);
+    else if (ext == extensions[1]) b = (new PNG(path.string()))->checkMessage(message);
     return b;
 }
 
@@ -130,9 +144,9 @@ bool checkMessage(const string& message, const string& extension, ifstream& in) 
  * @param in - the file stream that is used to read the file.
  */
 
-void encryptMessage (const string& message, const string& extension,const string& path, ifstream& in) {
-    if(extension == extensions[0]) {
-        BMP::encryptMessage(message, path, in);
+void encryptMessage (const string& message, const fs::path& path) {
+    if(path.extension() == extensions[0]) {
+        (new BMP(path.string()))->encryptMessage(message);
     }
 }
 
@@ -143,10 +157,10 @@ void encryptMessage (const string& message, const string& extension,const string
  * @return the message encrypted in the file.
  */
 
-string decryptMessage(const string& extension, ifstream& in) {
+string decryptMessage(const fs::path& path, ifstream& in) {
     string message;
-    if(extension == extensions[0]) {
-        message = BMP::decryptMessage(in);
+    if(path.extension().string() == extensions[0]) {
+        message = (new BMP(path.string()))->decryptMessage();
     }
     return message;
 }
@@ -181,34 +195,37 @@ int main(int argc, const char* argv[]) {
                 } else message = useHelp;
 
             } else if (flag == "-i" || flag == "--info") {
-                if(checkArguments(argc, 1) && checkFile(argv[2]) && checkExtension(argv[2], ext) && checkPerms(argv[2], in)) {
+                if(checkArguments(argc, 1) && checkFile(argv[2]) && checkExtension(argv[2]) && checkPerms(argv[2], in)) {
                     fs::path path = fs::path(argv[2]);
-                    message = getInfo(path, in);
+                    message = getInfo(path);
                 } else message = useHelp;
 
             } else if (flag == "-e" || flag == "--encrypt") {
-                if(checkArguments(argc, 2) && checkFile(argv[2]) && checkExtension(argv[2], ext) && checkPerms(argv[2], in)) {
+                if(checkArguments(argc, 2) && checkFile(argv[2]) && checkExtension(argv[2]) && checkPerms(argv[2], in)) {
+                    fs::path path = fs::path(argv[2]);
                     string text = argv[3];
                     text += '\u0003';  //end of text
-                    if(!checkMessage(text, ext, in)) message = messageEncryptError + useHelp;
+                    if(!checkMessage(text, path)) message = messageEncryptError + useHelp;
                     else {
-                        encryptMessage(text, ext, argv[2], in);
+                        encryptMessage(text, path);
                         message = encrypted;
                     }
 
                 } else message = useHelp;
 
             } else if (flag == "-d" || flag == "--decrypt") {
-                if(checkArguments(argc, 1) && checkFile(argv[2]) && checkExtension(argv[2], ext) && checkPerms(argv[2], in)) {
+                if(checkArguments(argc, 1) && checkFile(argv[2]) && checkExtension(argv[2]) && checkPerms(argv[2], in)) {
+                    fs::path path = fs::path(argv[2]);
                     message = "Message: ";
-                    message += decryptMessage(ext, in);
+                    message += decryptMessage(path, in);
                 } else message = useHelp;
 
             } else if (flag == "-c" || flag == "--check") {
-                if(checkArguments(argc, 2) && checkFile(argv[2]) && checkExtension(argv[2], ext) && checkPerms(argv[2], in)) {
+                if(checkArguments(argc, 2) && checkFile(argv[2]) && checkExtension(argv[2]) && checkPerms(argv[2], in)) {
+                    fs::path path = fs::path(argv[2]);
                     string text = argv[3];
                     text += '\u0003';  //end of text
-                    if(checkMessage(text, ext, in)) message = messageIsPossible;
+                    if(checkMessage(text, path)) message = messageIsPossible;
                     else message = messageNotPossible;
 
                 } else message = useHelp;

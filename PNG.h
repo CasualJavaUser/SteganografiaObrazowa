@@ -4,25 +4,28 @@
 #include <iostream>
 #include <fstream>
 #include <filesystem>
+#include "Image.h"
 
 using namespace std;
 namespace fs = filesystem;
 
-namespace PNG {
-    unsigned int colorType(ifstream&);
-    string colorTypeName(ifstream&);
-    unsigned int colorDepth(ifstream&);
-    unsigned long long pixelArraySize(ifstream&);
-    unsigned int imageWidth(ifstream&);
-    unsigned long fileSize(ifstream&);
-    unsigned char* pixelArray(ifstream&);
+class PNG : Image {
+public:
+    PNG(const string&);
+    unsigned int colorType();
+    string colorTypeName();
+    unsigned int colorDepth();
+    unsigned long long pixelArraySize();
+    unsigned int imageWidth();
+    unsigned long fileSize();
+    unsigned char* pixelArray();
     unsigned char* huffmanDec(unsigned char*);
     unsigned char* huffmanCom(unsigned char*);
     unsigned char* lzssDec(unsigned char*);
     unsigned char* lzssCom(unsigned char*);
     unsigned char* reverseFilter(unsigned char*);
-    string getInfo(const fs::path&, ifstream&);
-    bool checkMessage(const string&, ifstream&);
-}
+    string getInfo();
+    bool checkMessage(const string&);
+};
 
 #endif //STEGANOGRAFIAOBRAZOWA_PNG_H

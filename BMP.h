@@ -6,31 +6,35 @@
 #include <fstream>
 #include <filesystem>
 #include "getBytes.h"
+#include "Image.h"
 
 using namespace std;
 namespace fs = filesystem;
 
-namespace BMP {
+class BMP : Image {
+public:
+    BMP(const string&);
+
     /**
      * Reads the color depth value (bits per pixel) from the .bmp file.
      * @param in - file stream that is used to read the file.
      * @return the number of bits per pixel in the .bmp file.
      */
-    unsigned int colorDepth(ifstream& in);
+    unsigned int colorDepth();
 
     /**
      * Returns the number of pixels in the pixel array of the .bmp file.
      * @param in - file stream that is used to read the file.
      * @return the number of pixels in the pixel array.
      */
-    unsigned long long pixelArraySize(ifstream& in);
+    unsigned long long pixelArraySize();
 
     /**
      * Returns the file size in bytes of the .bmp file.
      * @param in - file stream that is used to read the file.
      * @return the size in bytes of the .bmp file.
      */
-    unsigned long fileSize(ifstream& in);
+    unsigned long fileSize();
 
     /**
      * Gives information about the given file.
@@ -39,7 +43,7 @@ namespace BMP {
      * @return string containing information about the file.
      */
 
-    string getInfo(const fs::path& path, ifstream& in);
+    string getInfo();
 
     /**
      * Check whether the given message can be either encrypted in or decrypted from the file.
@@ -48,7 +52,7 @@ namespace BMP {
      * @param in - the file stream that is used to read the file.
      * @return true if it's possible to encrypt or decrypt the message from the given file.
      */
-    bool checkMessage(const string& message, ifstream& in);
+    bool checkMessage(const string&);
 
     /**
      * Encrypts the message in the file.
@@ -56,7 +60,7 @@ namespace BMP {
      * @param path - file path.
      * @param in - the file stream that is used to read the file.
      */
-    void encryptMessage (const string& message, const string& path, ifstream& in);
+    void encryptMessage (const string& message);
 
     /**
      * Decrypts a message from the given file.
@@ -64,7 +68,7 @@ namespace BMP {
      * @param in - the file stream that is used to read the file.
      * @return the message encrypted in the file.
      */
-    string decryptMessage(ifstream& in);
-}
+    string decryptMessage();
+};
 
 #endif //STEGANOGRAFIAOBRAZOWA_BMP_H

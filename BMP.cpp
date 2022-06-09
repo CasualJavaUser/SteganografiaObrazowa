@@ -1,47 +1,53 @@
 #include "BMP.h"
 #include "getBytes.h"
 
-unsigned int BMP::colorDepth(ifstream& in) {
+BMP::BMP(const string & path) {
+    this->path = path;
+    in.open(path, ios::binary);
+}
+
+unsigned int BMP::colorDepth() {
     in.seekg(28);
     return (int) getBytesSE(in, 2);
 }
 
-unsigned long long BMP::pixelArraySize(ifstream &in) {
+unsigned long long BMP::pixelArraySize() {
     in.seekg(18);
     return (getBytesSE(in, 4) * getBytesSE(in, 4));
 }
 
-unsigned long BMP::fileSize(ifstream &in) {
+unsigned long BMP::fileSize() {
     in.seekg(2);
     return getBytesSE(in, 4);
 }
 
-string BMP::getInfo(const fs::path &path, ifstream &in) {
-    string message = "file name: " + path.filename().string() +
-                     "\nfile extension: " + path.extension().string() +
-                     "\nfile size (bytes): " + to_string(fileSize(in));
+string BMP::getInfo() {
+    fs::path p = fs::path(path);
+    string message = "file name: " + p.filename().string() +
+                     "\nfile extension: " + p.extension().string() +
+                     "\nfile size (bytes): " + to_string(fileSize());
     in.ignore(12);
     message += "\nimage dimensions (pixels): " + to_string(getBytesSE(in, 4)) + " x " +
                to_string(getBytesSE(in, 4));
-    message += "\ncolor depth: " + to_string(colorDepth(in));
+    message += "\ncolor depth: " + to_string(colorDepth());
 
     return message;
 }
 
-bool BMP::checkMessage(const string &message, ifstream &in) {
-    unsigned int bpp = colorDepth(in);
+bool BMP::checkMessage(const string &message) {
+    unsigned int bpp = colorDepth();
     if (bpp != 24 && bpp != 32) return false;  //unsupported type of bitmap
 
-    unsigned long long bitCapacity = pixelArraySize(in) * 3;
+    unsigned long long bitCapacity = pixelArraySize() * 3;
     unsigned long long messageBitSize = message.size() * 8;
 
     if (bitCapacity < messageBitSize) return false;
     return true;
 }
 
-void BMP::encryptMessage(const string &message, const string &path, ifstream &in) {
-    unsigned int bpp = colorDepth(in);
-    unsigned long size = fileSize(in);
+void BMP::encryptMessage(const string &message) {
+    unsigned int bpp = colorDepth();
+    unsigned long size = fileSize();
     in.seekg(10);
     int offset = getBytesSE(in, 4);  //The offset of the byte where the pixel pixelArray starts
     unsigned char array[size];
@@ -69,13 +75,13 @@ void BMP::encryptMessage(const string &message, const string &path, ifstream &in
     out.close();
 }
 
-string BMP::decryptMessage(ifstream &in) {
+string BMP::decryptMessage() {
     unsigned char byte = 0;
     string message;
     in.seekg(10);
     int offset = getBytesSE(in, 4);
-    unsigned int bpp = colorDepth(in);
-    unsigned long long size = pixelArraySize(in);
+    unsigned int bpp = colorDepth();
+    unsigned long long size = pixelArraySize();
     in.seekg(offset);
     int bits = 0;
     for (int i = 0; i < size; i++) {

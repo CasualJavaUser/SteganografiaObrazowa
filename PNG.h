@@ -23,6 +23,7 @@ public:
     unsigned char* huffmanCom(unsigned char*);
     unsigned char* lzssDec(unsigned char*);
     unsigned char* lzssCom(unsigned char*);
+    unsigned char* filter(unsigned char*);
     unsigned char* reverseFilter(unsigned char*);
     string getInfo();
     bool checkMessage(const string&);

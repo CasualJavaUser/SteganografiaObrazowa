@@ -1,7 +1,38 @@
 #include <cstring>
 #include <algorithm>
+#include <map>
 #include "PNG.h"
 #include "getBytes.h"
+
+struct Node {
+    unsigned char data;
+    unsigned int freq;
+    Node *left, *right;
+    Node(unsigned char data, unsigned int freq) : data(data), freq(freq) {
+        left = nullptr;
+        right = nullptr;
+    }
+    bool operator>(Node node) {
+        return this->freq > node.freq;
+    }
+    bool operator<(Node node) {
+        return this->freq < node.freq;
+    }
+};
+
+void sortNodes(vector<Node> & nodes) {
+    for(int i = 0; i < nodes.size() - 1; i++) {
+        for(int j = i+1; j < nodes.size(); j++) {
+            if(nodes[i] > nodes[j]) {
+                Node temp = nodes[i];
+                nodes[i] = nodes[j];
+                nodes[j] = temp;
+            }
+        }
+    }
+}
+
+
 
 PNG::PNG(const string & path) {
     this->path = path;
@@ -82,6 +113,34 @@ unsigned char *PNG::huffmanDec(unsigned char *array) {
 }
 
 unsigned char *PNG::huffmanCom(unsigned char *array) {
+    vector<Node> nodes;
+    unsigned int length = pixelArraySize();
+
+    for (int i = 0; i < length; i++) {
+        bool exists = false;
+        for(int j = 0; j < nodes.size(); j++) {
+            if (nodes[j].data == array[i]) {
+                exists = true;
+                nodes[i].freq++;
+            }
+            if(exists) continue;
+            nodes.push_back(Node(array[i], 1));
+        }
+    }
+
+    while(nodes.size() != 1) {
+        sortNodes(nodes);
+        Node node = Node('$', nodes[0].freq + nodes[1].freq);
+        node.left = &nodes[0];
+        node.right = &nodes[1];
+
+        std::pop_heap(nodes.begin(), nodes.end());
+        std::pop_heap(nodes.begin(), nodes.end());
+        nodes.push_back(node);
+    }
+
+    //TODO
+
     return nullptr;
 }
 
@@ -153,6 +212,7 @@ unsigned char *PNG::filter(unsigned char *array) {
                 break;
         }
     }
+    delete array;
     return filteredArray;
 }
 
@@ -200,6 +260,7 @@ unsigned char *PNG::reverseFilter(unsigned char *array) {
             copy(&paddedArray[y + 1][1], &paddedArray[y + 1][width + 1], &unfilteredArray[y * width]);
         }
     }
+    delete array;
     return unfilteredArray;
 }
 
@@ -226,4 +287,12 @@ bool PNG::checkMessage(const string &message) {
 
     if (bitCapacity < messageBitSize) return false;
     return true;
+}
+
+void PNG::encryptMessage(const string &) {
+
+}
+
+string PNG::decryptMessage() {
+    return "";
 }

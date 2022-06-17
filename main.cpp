@@ -2,12 +2,12 @@
 #include <filesystem>
 #include "BMP.h"
 #include "PNG.h"
-#include "GIF.h"
+#include "PPM.h"
 
 using namespace std;
 namespace fs = filesystem;
 
-const string extensions[] = {".bmp",".png", ".gif"};
+const string extensions[] = {".bmp",".png", ".ppm"};
 
 /**
  * Returns true if the number of arguments is equal to the expected number.
@@ -134,6 +134,7 @@ bool checkMessage (const string& message, const fs::path& path) {
     string ext = path.extension().string();
     if (ext == extensions[0]) b = (new BMP(path.string()))->checkMessage(message);
     else if (ext == extensions[1]) b = (new PNG(path.string()))->checkMessage(message);
+    else if (ext == extensions[2]) b = (new PPM(path.string()))->checkMessage(message);
     return b;
 }
 
@@ -148,6 +149,9 @@ bool checkMessage (const string& message, const fs::path& path) {
 void encryptMessage (const string& message, const fs::path& path) {
     if(path.extension() == extensions[0]) {
         (new BMP(path.string()))->encryptMessage(message);
+    }
+    if(path.extension() == extensions[1]) {
+
     }
 }
 

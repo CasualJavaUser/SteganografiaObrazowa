@@ -3,6 +3,14 @@
 1496	1877	6763268893846946	SteganografiaObrazowa.exe	ffe8d8395b7e1136
 20	1459	6763268889594416	CMakeFiles/SteganografiaObrazowa.dir/BMP.cpp.obj	400f207b738c19a4
 60	1960	6762520984103645	CMakeFiles/SteganografiaObrazowa.dir/getBytes.cpp.obj	c0fe8de499df4408
-0	284	6764841729914657	build.ninja	7c8684029481f711
+0	284	6771719703902964	build.ninja	7c8684029481f711
 22	1461	6763268889724269	CMakeFiles/SteganografiaObrazowa.dir/PNG.cpp.obj	f261255fd24b1852
 24	1460	6763268889594416	CMakeFiles/SteganografiaObrazowa.dir/GIF.cpp.obj	cf02a852f0f9f76f
+29	1372	6771788300619547	CMakeFiles/SteganografiaObrazowa.dir/getBytes.cpp.obj	c0fe8de499df4408
+26	1559	6771788302467649	CMakeFiles/SteganografiaObrazowa.dir/main.cpp.obj	b9a67bad608c30ae
+24	1615	6771788303047056	CMakeFiles/SteganografiaObrazowa.dir/BMP.cpp.obj	400f207b738c19a4
+3	1805	6771788304935132	CMakeFiles/SteganografiaObrazowa.dir/PNG.cpp.obj	f261255fd24b1852
+2	1332	6771805642894603	CMakeFiles/SteganografiaObrazowa.dir/PPM.cpp.obj	e8c374db4d4d0dfa
+1332	1746	6771805646960443	SteganografiaObrazowa.exe	90a5bb16afcd71a7
+3	990	6771852252618260	CMakeFiles/SteganografiaObrazowa.dir/PPM.cpp.obj	e8c374db4d4d0dfa
+991	1256	6771852255235386	SteganografiaObrazowa.exe	90a5bb16afcd71a7

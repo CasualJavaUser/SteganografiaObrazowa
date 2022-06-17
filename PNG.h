@@ -10,8 +10,7 @@ using namespace std;
 namespace fs = filesystem;
 
 class PNG : Image {
-public:
-    PNG(const string&);
+private:
     unsigned int colorType();
     string colorTypeName();
     unsigned int colorDepth();
@@ -25,8 +24,12 @@ public:
     unsigned char* lzssCom(unsigned char*);
     unsigned char* filter(unsigned char*);
     unsigned char* reverseFilter(unsigned char*);
-    string getInfo();
-    bool checkMessage(const string&);
+public:
+    PNG(const string&);
+    string getInfo() override;
+    bool checkMessage(const string&) override;
+    void encryptMessage(const string &) override;
+    string decryptMessage() override;
 };
 
 #endif //STEGANOGRAFIAOBRAZOWA_PNG_H

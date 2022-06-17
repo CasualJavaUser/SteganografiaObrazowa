@@ -1,7 +1,3 @@
-//
-// Created by maxbe on 09.06.2022.
-//
-
 #ifndef STEGANOGRAFIAOBRAZOWA_IMAGE_H
 #define STEGANOGRAFIAOBRAZOWA_IMAGE_H
 
@@ -14,6 +10,11 @@ class Image {
 protected:
     string path;
     ifstream in;
+public:
+    virtual string getInfo() = 0;
+    virtual bool checkMessage(const string&) = 0;
+    virtual void encryptMessage(const string&) = 0;
+    virtual string decryptMessage() = 0;
 };
 
 

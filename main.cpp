@@ -176,7 +176,7 @@ int main(int argc, const char* argv[]) {
                                "-e --encrypt <file> <message>\tEncrypts the message in the file.\n"
                                "-d --decrypt <file>\t\tDecrypts a message from the file.\n"
                                "-c --check <file> <message>\tChecks if the given message can be encrypted in or decrypted from the file.\n\n"
-                               "Supported image formats: .bmp, .png";
+                               "Supported image formats: .bmp, .png, .ppm";
     const string noSuchFlag = "Error: nrecognized option ";
     const string useHelp = "\nUse -h or --help for more information.";
     const string messageIsPossible = "The given message can be either encrypted or decrypted from the file.";

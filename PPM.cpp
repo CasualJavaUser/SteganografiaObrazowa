@@ -93,12 +93,15 @@ string PPM::getInfo() {
                      "\nfile size (bytes): " + to_string(fileSize()) +
                      "\nimage dimensions (pixels): " + to_string(imageWidth()) + " x " + to_string(imageHeight()) +
                      "\ncolor depth: " + to_string(colorDepth());
+    if (getType() == 6) message += "\ntype: raw";
+    else if (getType() == 3) message += "\ntype: ASCII";
     return message;
 }
 
 bool PPM::checkMessage(const string & message) {
     unsigned long long imageSize = imageWidth() * imageHeight();
     if (colorDepth() != 255) return false;
+    if (getType() != 6 && getType() != 3) return false;
 
     unsigned long long bitCapacity = imageSize * 3;
     unsigned long long messageBitSize = message.size() * 8;
@@ -124,11 +127,21 @@ void PPM::encryptMessage(const string & message) {
     offset = in.tellg();
     in.close();
 
-    if(type == 6) {
+    if(type == 6) {  //raw
         for (int i = 0; i < message.size(); i++) {
             for (int j = 0; j < 8; j++) {
                 array[offset + i * 8 + j] &= 0b11111110;
                 array[offset + i * 8 + j] |= (message[i] >> j) & 1;
+            }
+        }
+    } else {  //ascii
+        long arrayIndex = offset;
+        for (int i = 0; i < message.size(); i++) {
+            for(int j = 0; j < 8; j++) {
+                while (array[arrayIndex + 1] != 0x0A) { arrayIndex++; }
+                array[arrayIndex] &= 0b11111110;
+                array[arrayIndex] |= (message[i] >> j) & 1;
+                arrayIndex++;
             }
         }
     }
@@ -138,6 +151,7 @@ void PPM::encryptMessage(const string & message) {
     for (unsigned char c: array) {
         out << c;
     }
+
     out.close();
 }
 
@@ -157,6 +171,27 @@ string PPM::decryptMessage() {
         int bits = 0;
         for (int i = 0; i < size; i++) {
             unsigned char bit = in.get() & 1;
+            if (bit != 0) byte |= 1 << bits;
+            bits++;
+
+            if (bits == 8) {
+                if (byte == '\u0003') break;
+                message += (char) byte;
+                byte = 0;
+                bits = 0;
+            }
+        }
+    } else {
+        int bits = 0;
+        for (int i = 0; i < size; i++) {
+            unsigned char currentByte = (unsigned char) getBytesBE(in, 1);
+            while (currentByte != 0x0A) {
+                currentByte = getBytesBE(in, 1);
+            }
+            in.seekg((int)in.tellg()-2);
+            unsigned char bit = in.get() & 1;
+            in.ignore(2);
+
             if (bit != 0) byte |= 1 << bits;
             bits++;
 

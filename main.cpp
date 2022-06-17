@@ -109,8 +109,9 @@ bool checkPerms(const string& path) {
 
 string getInfo(const fs::path & path) {
     string ext = path.extension().string();
-    if (ext == extensions[0]) return (new BMP(path.string()))->getInfo();
-    else if (ext == extensions[1]) return (new PNG(path.string()))->getInfo();
+    if (ext == extensions[0]) return BMP(path.string()).getInfo();
+    else if (ext == extensions[1]) return PNG(path.string()).getInfo();
+    else if (ext == extensions[2]) return PPM(path.string()).getInfo();
     return "";
 }
 
@@ -132,9 +133,9 @@ string getInfo(const fs::path & path) {
 bool checkMessage (const string& message, const fs::path& path) {
     bool b = false;
     string ext = path.extension().string();
-    if (ext == extensions[0]) b = (new BMP(path.string()))->checkMessage(message);
-    else if (ext == extensions[1]) b = (new PNG(path.string()))->checkMessage(message);
-    else if (ext == extensions[2]) b = (new PPM(path.string()))->checkMessage(message);
+    if (ext == extensions[0]) b = BMP(path.string()).checkMessage(message);
+    else if (ext == extensions[1]) b = PNG(path.string()).checkMessage(message);
+    else if (ext == extensions[2]) b = PPM(path.string()).checkMessage(message);
     return b;
 }
 
@@ -147,12 +148,9 @@ bool checkMessage (const string& message, const fs::path& path) {
  */
 
 void encryptMessage (const string& message, const fs::path& path) {
-    if(path.extension() == extensions[0]) {
-        (new BMP(path.string()))->encryptMessage(message);
-    }
-    if(path.extension() == extensions[1]) {
-
-    }
+    if(path.extension() == extensions[0]) (BMP(path.string())).encryptMessage(message);
+    else if(path.extension() == extensions[1]) (PNG(path.string())).encryptMessage(message);
+    else if(path.extension() == extensions[2]) (PPM(path.string())).encryptMessage(message);
 }
 
 /**
@@ -164,9 +162,9 @@ void encryptMessage (const string& message, const fs::path& path) {
 
 string decryptMessage(const fs::path& path) {
     string message;
-    if(path.extension().string() == extensions[0]) {
-        message = (new BMP(path.string()))->decryptMessage();
-    }
+    if(path.extension().string() == extensions[0]) message = BMP(path.string()).decryptMessage();
+    else if(path.extension().string() == extensions[1]) message = PNG(path.string()).decryptMessage();
+    else if(path.extension().string() == extensions[2]) message = PPM(path.string()).decryptMessage();
     return message;
 }
 

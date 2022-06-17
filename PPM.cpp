@@ -6,15 +6,82 @@ using namespace std;
 namespace fs = filesystem;
 
 unsigned long PPM::fileSize() {
-    /*in.seekg(0);
-    unsigned char byte;
-    while(byte != 0x0A) {
-        byte = getBytesBE(in, 1);
-    }*/
-    return 0;
+    in.seekg(0);
+    unsigned long size = 0;
+    while (!in.eof()) {
+        in.get();
+        size++;
+    }
+    size--;  //minus eof
+
+    in.close();
+    in.open(path, ios::binary);
+
+    return size;
 }
 
-PPM::PPM(const string &) {
+unsigned long PPM::imageWidth() {
+    in.seekg(3);
+
+    unsigned char byte = 0;
+    unsigned long width = 0;
+
+    while(byte != 0x0A) {
+        byte = getBytesBE(in, 1);
+    }
+
+    byte = getBytesBE(in, 1);
+    while (byte != 0x20) {
+        width *= 10;
+        width += (byte - 48);
+        byte = getBytesBE(in, 1);
+    }
+    return width;
+}
+
+unsigned long PPM::imageHeight() {
+    in.seekg(3);
+
+    unsigned char byte = 0;
+    unsigned long height = 0;
+
+    while(byte != 0x0A) {
+        byte = getBytesBE(in, 1);
+    }
+    while(byte != 0x20) {  //space
+        byte = getBytesBE(in, 1);
+    }
+
+    byte = getBytesBE(in, 1);
+    while (byte != 0x0A) {
+        height *= 10;
+        height += (byte - 48);
+        byte = getBytesBE(in, 1);
+    }
+    return height;
+}
+
+unsigned char PPM::getType() {
+    in.seekg(1);
+    return (getBytesBE(in,1))-48;
+}
+
+unsigned char PPM::colorDepth() {
+    imageHeight();  //skip to image height
+
+    unsigned char cd = 0;
+    unsigned char byte = 0;
+
+    byte = getBytesBE(in, 1);
+    while (byte != 0x0A) {
+        cd *= 10;
+        cd += (byte - 48);
+        byte = getBytesBE(in, 1);
+    }
+    return cd;
+}
+
+PPM::PPM(const string & path) {
     this->path = path;
     in.open(path, ios::binary);
 }
@@ -23,25 +90,84 @@ string PPM::getInfo() {
     fs::path p = fs::path(path);
     string message = "file name: " + p.filename().string() +
                      "\nfile extension: " + p.extension().string() +
-                     "\nfile size (bytes): " + to_string(fileSize());
+                     "\nfile size (bytes): " + to_string(fileSize()) +
+                     "\nimage dimensions (pixels): " + to_string(imageWidth()) + " x " + to_string(imageHeight()) +
+                     "\ncolor depth: " + to_string(colorDepth());
     return message;
 }
 
-bool PPM::checkMessage(const string &) {
-    for (int j=0; j < 10; j++) {
-        for (int i = 0; i < 10; i++) {
-            cout << (char)getBytesBE(in,1) << " | ";
-        }
-        cout<<endl;
-    }
-    //TODO co to się staneło tutaj
-    return false;
+bool PPM::checkMessage(const string & message) {
+    unsigned long long imageSize = imageWidth() * imageHeight();
+    if (colorDepth() != 255) return false;
+
+    unsigned long long bitCapacity = imageSize * 3;
+    unsigned long long messageBitSize = message.size() * 8;
+
+    if (bitCapacity < messageBitSize) return false;
+    return true;
 }
 
-void PPM::encryptMessage(const string &) {
 
+
+void PPM::encryptMessage(const string & message) {
+    unsigned char type = getType();
+    unsigned long long size = fileSize();
+    unsigned char array[size];
+    long long offset;
+
+    in.seekg(0);
+    for (int i = 0; i < size; ++i) {
+        array[i] = in.get();
+    }
+
+    colorDepth();  //skip to color depth
+    offset = in.tellg();
+    in.close();
+
+    if(type == 6) {
+        for (int i = 0; i < message.size(); i++) {
+            for (int j = 0; j < 8; j++) {
+                array[offset + i * 8 + j] &= 0b11111110;
+                array[offset + i * 8 + j] |= (message[i] >> j) & 1;
+            }
+        }
+    }
+
+    ofstream out;
+    out.open(path, ios::binary);
+    for (unsigned char c: array) {
+        out << c;
+    }
+    out.close();
 }
 
 string PPM::decryptMessage() {
-    return "";
+    unsigned long long size = fileSize();
+    unsigned char type = getType();
+    unsigned char byte = 0;
+    string message;
+    long long offset;
+
+    colorDepth();  //skip to color depth
+    offset = in.tellg();
+
+    in.seekg(offset);
+
+    if(type == 6) {
+        int bits = 0;
+        for (int i = 0; i < size; i++) {
+            unsigned char bit = in.get() & 1;
+            if (bit != 0) byte |= 1 << bits;
+            bits++;
+
+            if (bits == 8) {
+                if (byte == '\u0003') break;
+                message += (char) byte;
+                byte = 0;
+                bits = 0;
+            }
+        }
+    }
+
+    return message;
 }

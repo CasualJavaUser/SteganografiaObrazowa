@@ -4,12 +4,10 @@
 
 #include <iostream>
 #include <fstream>
-#include <filesystem>
 #include "getBytes.h"
 #include "Image.h"
 
 using namespace std;
-namespace fs = filesystem;
 
 class BMP : Image {
 private:

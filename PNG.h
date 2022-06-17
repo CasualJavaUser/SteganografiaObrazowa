@@ -3,11 +3,9 @@
 
 #include <iostream>
 #include <fstream>
-#include <filesystem>
 #include "Image.h"
 
 using namespace std;
-namespace fs = filesystem;
 
 class PNG : Image {
 private:

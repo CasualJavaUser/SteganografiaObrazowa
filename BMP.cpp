@@ -1,5 +1,8 @@
 #include "BMP.h"
+#include <filesystem>
 #include "getBytes.h"
+
+namespace fs = filesystem;
 
 BMP::BMP(const string & path) {
     this->path = path;
@@ -49,7 +52,7 @@ void BMP::encryptMessage(const string &message) {
     unsigned int bpp = colorDepth();
     unsigned long size = fileSize();
     in.seekg(10);
-    int offset = getBytesSE(in, 4);  //The offset of the byte where the pixel pixelArray starts
+    long offset = getBytesSE(in, 4);  //The offset of the byte where the pixel pixelArray starts
     unsigned char array[size];
 
     in.seekg(0);
@@ -79,7 +82,7 @@ string BMP::decryptMessage() {
     unsigned char byte = 0;
     string message;
     in.seekg(10);
-    int offset = getBytesSE(in, 4);
+    long offset = getBytesSE(in, 4);
     unsigned int bpp = colorDepth();
     unsigned long long size = pixelArraySize();
     in.seekg(offset);

@@ -9,6 +9,10 @@ using namespace std;
 class PPM : Image {
 private:
     unsigned long fileSize();
+    unsigned long imageWidth();
+    unsigned long imageHeight();
+    unsigned char getType();
+    unsigned char colorDepth();
 public:
     PPM(const string &);
     string getInfo() override;

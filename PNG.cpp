@@ -1,8 +1,11 @@
 #include <cstring>
 #include <algorithm>
+#include <filesystem>
 #include <map>
 #include "PNG.h"
 #include "getBytes.h"
+
+namespace fs = filesystem;
 
 struct Node {
     unsigned char data;

@@ -59,13 +59,13 @@ string PNG::colorTypeName() {
     }
 }
 
-unsigned int PNG::colorDepth() {
+/*unsigned int PNG::colorDepth() {
     unsigned int channels = 0;
     if (colorType() == 2) channels = 3;
     else if(colorType() == 6) channels = 4;
     in.seekg(24);
     return getBytesBE(in, 1) * channels;
-}
+}*/
 
 unsigned long long PNG::pixelArraySize() {
     in.seekg(16);

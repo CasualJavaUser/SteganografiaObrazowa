@@ -12,20 +12,20 @@ using namespace std;
 class BMP : Image {
 private:
     /**
-     * Reads the color depth value (bits per pixel) from the .bmp file.
-     * @return the number of bits per pixel in the .bmp file.
+     * Returns the color depth value (bits per pixel).
+     * @return the number of bits per pixel.
      */
     unsigned int colorDepth();
 
     /**
-     * Returns the number of pixels in the pixel array of the .bmp file.
+     * Returns the number of pixels in the pixel array.
      * @return the number of pixels in the pixel array.
      */
     unsigned long long pixelArraySize();
 
     /**
-     * Returns the file size in bytes of the .bmp file.
-     * @return the size in bytes of the .bmp file.
+     * Returns the file size in bytes.
+     * @return the size in bytes.
      */
     unsigned long fileSize();
 
@@ -40,7 +40,7 @@ public:
     string getInfo();
 
     /**
-     * Checks whether the given message can be either encrypted in or decrypted from the file.
+     * Checks whether the given message can be either encrypted or decrypted from the file.
      * @param message - the message to encrypt or decrypt.
      * @return true if it's possible to encrypt or decrypt the message from the given file.
      */

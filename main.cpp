@@ -16,7 +16,6 @@ const string extensions[] = {".bmp",".png", ".ppm"};
  * @param expected - the expected number of arguments.
  * @return true if the number of arguments is equal to the expected number.
  */
-
 bool checkArguments(const int& argc, const int& expected) {
     if(argc != expected+2) cout<<"Error: expected " + to_string(expected) + " argument(s)";
     return argc == expected+2;
@@ -28,7 +27,6 @@ bool checkArguments(const int& argc, const int& expected) {
  * @param path - file path.
  * @return true if the file's format is supported.
  */
-
 bool checkExtension(const string& path) {
     fs::path p = fs::path(path);
     string extension = p.extension().string();
@@ -50,7 +48,6 @@ bool checkExtension(const string& path) {
  * @param path - file path.
  * @return true if the path leads to an existing file.
  */
-
 bool checkFile(const string& path) {
     if(fs::is_directory(path)) {
         cout<<"Error: no file found.";
@@ -70,7 +67,6 @@ bool checkFile(const string& path) {
  * @param in - the file stream that is used to open the file.
  * @return true if the file can be opened.
  */
-
 bool checkPerms(const string& path) {
     ifstream in;
     in.open(path, ios::binary);
@@ -81,32 +77,12 @@ bool checkPerms(const string& path) {
     return true;
 }
 
-/*string temp(unsigned long bytes) {
-    unsigned char byte;
-    string s;
-    for(int i=0; i<4; i++) {
-        byte = (bytes>>8*i) & 0b11111111;
-        s+=(char)byte;
-    }
-    return s;
-}*/
-
 /**
  * Gives information about the given file.
  * @param path - file path;
  * @param in - file stream that is used to read the file.
  * @return string containing information about the file.
  */
-
-/*string getInfo(const fs::path& path, ifstream& in) {
-    string message;
-    if (path.extension().string() == extensions[0]) message = BMP::getInfo(path, in);
-    else if (path.extension().string() == extensions[1]) message = PNG::getInfo(path, in);
-    else if (path.extension().string() == extensions[2]) message = GIF::getInfo(path, in);
-
-    return message;
-}*/
-
 string getInfo(const fs::path & path) {
     string ext = path.extension().string();
     if (ext == extensions[0]) return BMP(path.string()).getInfo();
@@ -122,13 +98,6 @@ string getInfo(const fs::path & path) {
  * @param in - the file stream that is used to read the file.
  * @return true if it's possible to encrypt or decrypt the message from the given file.
  */
-
-/*bool checkMessage(const string& message, const string& extension, ifstream& in) {
-    bool b = false;
-    if(extension == extensions[0]) b = BMP::checkMessage(message, in);
-    else if(extension == extensions[1]) b = PNG::checkMessage(message, in);
-    return b;
-}*/
 
 bool checkMessage (const string& message, const fs::path& path) {
     bool b = false;
@@ -159,7 +128,6 @@ void encryptMessage (const string& message, const fs::path& path) {
  * @param in - the file stream that is used to read the file.
  * @return the message encrypted in the file.
  */
-
 string decryptMessage(const fs::path& path) {
     string message;
     if(path.extension().string() == extensions[0]) message = BMP(path.string()).decryptMessage();

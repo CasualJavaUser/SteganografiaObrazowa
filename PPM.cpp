@@ -115,7 +115,7 @@ bool PPM::checkMessage(const string & message) {
 void PPM::encryptMessage(const string & message) {
     unsigned char type = getType();
     unsigned long long size = fileSize();
-    unsigned char array[size];
+    unsigned char * array = new unsigned char[size];
     long long offset;
 
     in.seekg(0);
@@ -148,10 +148,10 @@ void PPM::encryptMessage(const string & message) {
 
     ofstream out;
     out.open(path, ios::binary);
-    for (unsigned char c: array) {
-        out << c;
+    for (int i = 0; i < size; i++) {
+        out << array[i];
     }
-
+    delete[] array;
     out.close();
 }
 
@@ -167,7 +167,7 @@ string PPM::decryptMessage() {
 
     in.seekg(offset);
 
-    if(type == 6) {
+    if(type == 6) {  //raw
         int bits = 0;
         for (int i = 0; i < size; i++) {
             unsigned char bit = in.get() & 1;
@@ -181,7 +181,7 @@ string PPM::decryptMessage() {
                 bits = 0;
             }
         }
-    } else {
+    } else {  //ASCII
         int bits = 0;
         for (int i = 0; i < size; i++) {
             unsigned char currentByte = (unsigned char) getBytesBE(in, 1);

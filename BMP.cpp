@@ -53,7 +53,8 @@ void BMP::encryptMessage(const string &message) {
     unsigned long size = fileSize();
     in.seekg(10);
     long offset = getBytesSE(in, 4);  //The offset of the byte where the pixel pixelArray starts
-    unsigned char array[size];
+    //unsigned char array[size];
+    unsigned char * array = new unsigned char[size];
 
     in.seekg(0);
     for (int i = 0; i < size; ++i) {
@@ -72,9 +73,11 @@ void BMP::encryptMessage(const string &message) {
 
     ofstream out;
     out.open(path, ios::binary);
-    for (unsigned char c: array) {
-        out << c;
+    for (int i = 0; i < size; i++) {
+        out << array[i];
     }
+
+    delete[] array;
     out.close();
 }
 
